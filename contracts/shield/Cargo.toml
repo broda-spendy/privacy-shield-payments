@@ -1,0 +1,21 @@
+[package]
+name = "shield-contract"
+edition = { workspace = true }
+version = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = "=20.0.0"
+base64ct = "=1.6.0"
+zeroize = "=1.7.0"
+
+[dev-dependencies]
+soroban-sdk = { version = "=20.0.0", features = ["testutils"] }
+
+[features]
+testutils = ["soroban-sdk/testutils"]
