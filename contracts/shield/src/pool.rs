@@ -75,101 +75,125 @@ mod test {
     use soroban_sdk::testutils::Address as _;
     use soroban_sdk::Env;
 
-    #[test]
-    fn deposit_creates_new_account_with_correct_balance() {
+    /// Module-level unit tests exercise `pool` functions directly (not via
+    /// a `ShieldContractClient`), but Soroban storage and `require_auth`
+    /// both require an active contract execution context. We register a
+    /// minimal dummy contract purely to get that context via
+    /// `env.as_contract`, then call the real `pool` functions inside it.
+    /// This keeps these as true unit tests of `pool.rs` logic (no
+    /// `lib.rs` routing involved) while satisfying the host's invariants.
+    use soroban_sdk::{contract, contractimpl};
+
+    #[contract]
+    struct DummyContract;
+
+    #[contractimpl]
+    impl DummyContract {
+        pub fn noop(_env: Env) {}
+    }
+
+    fn setup() -> (Env, Address) {
         let env = Env::default();
         env.mock_all_auths();
+        let contract_id = env.register_contract(None, DummyContract);
+        (env, contract_id)
+    }
+
+    #[test]
+    fn deposit_creates_new_account_with_correct_balance() {
+        let (env, contract_id) = setup();
         let depositor = Address::generate(&env);
 
-        let account = deposit(&env, depositor.clone(), 500).unwrap();
+        let account = env.as_contract(&contract_id, || deposit(&env, depositor.clone(), 500).unwrap());
         assert_eq!(account.balance, 500);
         assert_eq!(account.owner, depositor);
     }
 
     #[test]
     fn deposit_accumulates_into_existing_balance() {
-        let env = Env::default();
-        env.mock_all_auths();
+        let (env, contract_id) = setup();
         let depositor = Address::generate(&env);
 
-        deposit(&env, depositor.clone(), 100).unwrap();
-        let account = deposit(&env, depositor.clone(), 250).unwrap();
+        env.as_contract(&contract_id, || {
+            deposit(&env, depositor.clone(), 100).unwrap();
+        });
+        let account = env.as_contract(&contract_id, || deposit(&env, depositor.clone(), 250).unwrap());
         assert_eq!(account.balance, 350);
     }
 
     #[test]
     fn deposit_rejects_zero_amount() {
-        let env = Env::default();
-        env.mock_all_auths();
+        let (env, contract_id) = setup();
         let depositor = Address::generate(&env);
 
-        let result = deposit(&env, depositor, 0);
+        let result = env.as_contract(&contract_id, || deposit(&env, depositor, 0));
         assert_eq!(result, Err(ShieldError::InsufficientBalance));
     }
 
     #[test]
     fn deposit_rejects_negative_amount() {
-        let env = Env::default();
-        env.mock_all_auths();
+        let (env, contract_id) = setup();
         let depositor = Address::generate(&env);
 
-        let result = deposit(&env, depositor, -50);
+        let result = env.as_contract(&contract_id, || deposit(&env, depositor, -50));
         assert_eq!(result, Err(ShieldError::InsufficientBalance));
     }
 
     #[test]
     fn withdraw_reduces_balance() {
-        let env = Env::default();
-        env.mock_all_auths();
+        let (env, contract_id) = setup();
         let owner = Address::generate(&env);
 
-        deposit(&env, owner.clone(), 1000).unwrap();
-        let account = withdraw(&env, owner.clone(), 400).unwrap();
+        env.as_contract(&contract_id, || {
+            deposit(&env, owner.clone(), 1000).unwrap();
+        });
+        let account = env.as_contract(&contract_id, || withdraw(&env, owner.clone(), 400).unwrap());
         assert_eq!(account.balance, 600);
     }
 
     #[test]
     fn withdraw_fails_when_account_not_found() {
-        let env = Env::default();
-        env.mock_all_auths();
+        let (env, contract_id) = setup();
         let owner = Address::generate(&env);
 
-        let result = withdraw(&env, owner, 100);
+        let result = env.as_contract(&contract_id, || withdraw(&env, owner, 100));
         assert_eq!(result, Err(ShieldError::AccountNotFound));
     }
 
     #[test]
     fn withdraw_fails_when_amount_exceeds_balance() {
-        let env = Env::default();
-        env.mock_all_auths();
+        let (env, contract_id) = setup();
         let owner = Address::generate(&env);
 
-        deposit(&env, owner.clone(), 100).unwrap();
-        let result = withdraw(&env, owner, 200);
+        env.as_contract(&contract_id, || {
+            deposit(&env, owner.clone(), 100).unwrap();
+        });
+        let result = env.as_contract(&contract_id, || withdraw(&env, owner, 200));
         assert_eq!(result, Err(ShieldError::InsufficientBalance));
     }
 
     #[test]
     fn withdraw_rejects_zero_or_negative_amount() {
-        let env = Env::default();
-        env.mock_all_auths();
+        let (env, contract_id) = setup();
         let owner = Address::generate(&env);
 
-        deposit(&env, owner.clone(), 100).unwrap();
+        env.as_contract(&contract_id, || {
+            deposit(&env, owner.clone(), 100).unwrap();
+        });
         assert_eq!(
-            withdraw(&env, owner.clone(), 0),
+            env.as_contract(&contract_id, || withdraw(&env, owner.clone(), 0)),
             Err(ShieldError::InsufficientBalance)
         );
         assert_eq!(
-            withdraw(&env, owner, -10),
+            env.as_contract(&contract_id, || withdraw(&env, owner, -10)),
             Err(ShieldError::InsufficientBalance)
         );
     }
 
     #[test]
     fn read_account_returns_none_for_unknown_address() {
-        let env = Env::default();
+        let (env, contract_id) = setup();
         let owner = Address::generate(&env);
-        assert!(read_account(&env, &owner).is_none());
+        assert!(env.as_contract(&contract_id, || read_account(&env, &owner)).is_none());
     }
 }
