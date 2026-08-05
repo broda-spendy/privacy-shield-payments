@@ -104,7 +104,9 @@ mod test {
         let (env, contract_id) = setup();
         let depositor = Address::generate(&env);
 
-        let account = env.as_contract(&contract_id, || deposit(&env, depositor.clone(), 500).unwrap());
+        let account = env.as_contract(&contract_id, || {
+            deposit(&env, depositor.clone(), 500).unwrap()
+        });
         assert_eq!(account.balance, 500);
         assert_eq!(account.owner, depositor);
     }
@@ -117,7 +119,9 @@ mod test {
         env.as_contract(&contract_id, || {
             deposit(&env, depositor.clone(), 100).unwrap();
         });
-        let account = env.as_contract(&contract_id, || deposit(&env, depositor.clone(), 250).unwrap());
+        let account = env.as_contract(&contract_id, || {
+            deposit(&env, depositor.clone(), 250).unwrap()
+        });
         assert_eq!(account.balance, 350);
     }
 
@@ -194,6 +198,8 @@ mod test {
     fn read_account_returns_none_for_unknown_address() {
         let (env, contract_id) = setup();
         let owner = Address::generate(&env);
-        assert!(env.as_contract(&contract_id, || read_account(&env, &owner)).is_none());
+        assert!(env
+            .as_contract(&contract_id, || read_account(&env, &owner))
+            .is_none());
     }
 }

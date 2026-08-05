@@ -39,7 +39,7 @@ fn unsafe_for_production_verify_mock(proof: &crate::types::MockProof) -> bool {
 mod test {
     use super::*;
     use crate::types::MockProof;
-    use soroban_sdk::{Env, BytesN};
+    use soroban_sdk::{BytesN, Env};
 
     #[test]
     fn well_formed_mock_proof_verifies() {
