@@ -147,7 +147,8 @@ mod test {
         });
         env.as_contract(&contract_id, || {
             // amount <= 0 is not well-formed -> InvalidProof
-            let result = confidential_transfer(&env, alice.clone(), bob.clone(), mock_proof(&env, 0));
+            let result =
+                confidential_transfer(&env, alice.clone(), bob.clone(), mock_proof(&env, 0));
             assert_eq!(result, Err(ShieldError::InvalidProof));
         });
     }
@@ -159,7 +160,8 @@ mod test {
         let bob = Address::generate(&env);
 
         env.as_contract(&contract_id, || {
-            let result = confidential_transfer(&env, alice.clone(), bob.clone(), mock_proof(&env, 100));
+            let result =
+                confidential_transfer(&env, alice.clone(), bob.clone(), mock_proof(&env, 100));
             assert_eq!(result, Err(ShieldError::AccountNotFound));
         });
     }
@@ -174,7 +176,8 @@ mod test {
             deposit(&env, alice.clone(), 50).unwrap();
         });
         env.as_contract(&contract_id, || {
-            let result = confidential_transfer(&env, alice.clone(), bob.clone(), mock_proof(&env, 100));
+            let result =
+                confidential_transfer(&env, alice.clone(), bob.clone(), mock_proof(&env, 100));
             assert_eq!(result, Err(ShieldError::InsufficientBalance));
         });
     }

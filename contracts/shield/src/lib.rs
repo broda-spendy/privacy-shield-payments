@@ -45,13 +45,21 @@ impl ShieldContract {
     }
 
     /// Deposits `amount` into the caller's shielded balance.
-    pub fn deposit(env: Env, depositor: Address, amount: i128) -> Result<ShieldedAccount, ShieldError> {
+    pub fn deposit(
+        env: Env,
+        depositor: Address,
+        amount: i128,
+    ) -> Result<ShieldedAccount, ShieldError> {
         Self::require_initialized(&env)?;
         pool::deposit(&env, depositor, amount)
     }
 
     /// Withdraws `amount` from the caller's shielded balance.
-    pub fn withdraw(env: Env, owner: Address, amount: i128) -> Result<ShieldedAccount, ShieldError> {
+    pub fn withdraw(
+        env: Env,
+        owner: Address,
+        amount: i128,
+    ) -> Result<ShieldedAccount, ShieldError> {
         Self::require_initialized(&env)?;
         pool::withdraw(&env, owner, amount)
     }

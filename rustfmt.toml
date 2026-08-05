@@ -1,0 +1,3 @@
+# Rustfmt configuration for the Privacy-Shield Payments workspace.
+edition = "2021"
+max_width = 100
