@@ -1,5 +1,7 @@
 # Privacy-Shield Payments
 
+[![codecov](https://codecov.io/gh/broda-spendy/privacy-shield-payments/branch/main/graph/badge.svg)](https://codecov.io/gh/broda-spendy/privacy-shield-payments)
+
 Confidential peer-to-peer stablecoin transfers on Stellar/Soroban, with
 ZK-style privacy and selective disclosure for compliance.
 
@@ -13,6 +15,7 @@ ZK-style privacy and selective disclosure for compliance.
 - [x] `cargo build --workspace` — **passes**
 - [x] `cargo test --workspace` — **passes, 25/25 tests green**
 - [x] CI workflow (`.github/workflows/ci.yml`)
+- [x] Coverage gate — **80% line coverage enforced in CI (currently ~97.5%)**
 - [x] Phase 2–6 tracked as GitHub issues
 
 ## Resolved: `cargo test` / `testutils` build blocker
