@@ -44,3 +44,15 @@ jobs:
         run: cargo build --workspace
       - name: Run tests
         run: cargo test --workspace
+
+  wasm:
+    name: Build (wasm32-unknown-unknown)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Build workspace (wasm32-unknown-unknown)
+        run: cargo build --workspace --target wasm32-unknown-unknown --release

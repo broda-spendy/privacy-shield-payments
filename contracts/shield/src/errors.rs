@@ -24,3 +24,101 @@ pub enum ShieldError {
     /// The contract has not been initialized yet.
     NotInitialized = 7,
 }
+
+impl core::fmt::Display for ShieldError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let msg = match self {
+            ShieldError::InsufficientBalance => {
+                "insufficient shielded balance to cover the requested operation"
+            }
+            ShieldError::InvalidProof => "proof failed verification",
+            ShieldError::AccountNotFound => "no shielded account exists for the given address",
+            ShieldError::NotImplemented => "functionality is not implemented yet",
+            ShieldError::Unauthorized => "caller is not authorized to perform this action",
+            ShieldError::AlreadyInitialized => "contract has already been initialized",
+            ShieldError::NotInitialized => "contract has not been initialized yet",
+        };
+        f.write_str(msg)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    extern crate alloc;
+    use super::*;
+    use alloc::string::ToString;
+
+    #[test]
+    fn display_insufficient_balance() {
+        assert_eq!(
+            ShieldError::InsufficientBalance.to_string(),
+            "insufficient shielded balance to cover the requested operation"
+        );
+    }
+
+    #[test]
+    fn display_invalid_proof() {
+        assert_eq!(
+            ShieldError::InvalidProof.to_string(),
+            "proof failed verification"
+        );
+    }
+
+    #[test]
+    fn display_account_not_found() {
+        assert_eq!(
+            ShieldError::AccountNotFound.to_string(),
+            "no shielded account exists for the given address"
+        );
+    }
+
+    #[test]
+    fn display_not_implemented() {
+        assert_eq!(
+            ShieldError::NotImplemented.to_string(),
+            "functionality is not implemented yet"
+        );
+    }
+
+    #[test]
+    fn display_unauthorized() {
+        assert_eq!(
+            ShieldError::Unauthorized.to_string(),
+            "caller is not authorized to perform this action"
+        );
+    }
+
+    #[test]
+    fn display_already_initialized() {
+        assert_eq!(
+            ShieldError::AlreadyInitialized.to_string(),
+            "contract has already been initialized"
+        );
+    }
+
+    #[test]
+    fn display_not_initialized() {
+        assert_eq!(
+            ShieldError::NotInitialized.to_string(),
+            "contract has not been initialized yet"
+        );
+    }
+
+    #[test]
+    fn display_matches_every_variant() {
+        let variants = [
+            ShieldError::InsufficientBalance,
+            ShieldError::InvalidProof,
+            ShieldError::AccountNotFound,
+            ShieldError::NotImplemented,
+            ShieldError::Unauthorized,
+            ShieldError::AlreadyInitialized,
+            ShieldError::NotInitialized,
+        ];
+        for variant in variants {
+            let rendered = variant.to_string();
+            assert!(!rendered.is_empty(), "variant rendered empty message");
+            assert!(!rendered.contains("ShieldError"));
+        }
+    }
+}
