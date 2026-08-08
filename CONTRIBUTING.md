@@ -6,8 +6,11 @@ tracked as GitHub issues; check the open issues for good first tasks.
 
 ## Prerequisites
 
-- Rust **stable** toolchain (the pinned dependency set is compatible with
-  Rust 1.75+; the CI uses `dtolnay/rust-toolchain@stable`).
+- Rust **stable** toolchain on the same line as CI — the pinned dependency
+  set (`soroban-sdk 20.0.0`, `ethnum = "=1.5.0"`, etc.) does **not** compile
+  on Rust 1.97+. CI pins `dtolnay/rust-toolchain@1.95`; install that channel
+  locally (`rustup toolchain install 1.95`) and use it in this repo so local
+  builds match CI.
 - The `wasm32-unknown-unknown` target, needed to build the contract as a
   Wasm artifact:
 

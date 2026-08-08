@@ -51,6 +51,18 @@ with `require_auth`-calling operations split into separate frames (Soroban's
 auth mock disallows two `require_auth` calls for the same address within one
 frame).
 
+### CI toolchain pinned to 1.95
+
+The `soroban-env-common` 20.0.0 dependency graph pins `ethnum = "=1.5.0"`
+exactly. `ethnum` 1.5.0 (and 1.5.1/1.5.2) constructs a `TryFromIntError` with
+`mem::transmute(())`; starting with **Rust 1.97**, `TryFromIntError` is no
+longer zero-sized, so that crate no longer compiles
+(`error[E0512]: cannot transmute between types of different sizes`). The fix
+landed upstream in `ethnum` 1.5.3, but the exact `=1.5.0` pin prevents Cargo
+from picking it up. CI therefore pins `dtolnay/rust-toolchain@1.95` (the
+newest toolchain the pinned dependency set compiles on) in both
+`.github/workflows/ci.yml` and `.github/workflows/coverage.yml`.
+
 ## Repo layout
 
 See `architecture.md` §2 for the full breakdown. Quick orientation:
