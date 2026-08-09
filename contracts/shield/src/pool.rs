@@ -202,4 +202,108 @@ mod test {
             .as_contract(&contract_id, || read_account(&env, &owner))
             .is_none());
     }
+
+    /// Property-based tests: every property uses a fresh `Env` per case, so
+    /// storage from one iteration never leaks into the next.
+    mod proptest_mod {
+        use super::*;
+        use proptest::prelude::*;
+
+        const MAX_POSITIVE: i128 = i128::MAX;
+
+        // `deposit(x)` followed by `deposit(y)` succeeds for any positive
+        // `x, y` whose sum fits in `i128`, and the final balance equals
+        // `x + y`. Overflow (sum > i128::MAX) is rejected, never panics,
+        // and never leaves storage in a partial state.
+        proptest! {
+            #[test]
+            fn deposit_accumulates_checked(x in 1i128..MAX_POSITIVE, y in 1i128..MAX_POSITIVE) {
+                let (env, contract_id) = setup();
+                let depositor = Address::generate(&env);
+
+                let first = env.as_contract(&contract_id, || {
+                    deposit(&env, depositor.clone(), x).unwrap()
+                });
+                prop_assert_eq!(first.balance, x);
+
+                match x.checked_add(y) {
+                    Some(sum) => {
+                        let second = env.as_contract(&contract_id, || {
+                            deposit(&env, depositor.clone(), y).unwrap()
+                        });
+                        prop_assert_eq!(second.balance, sum);
+                    }
+                    None => {
+                        let result = env.as_contract(&contract_id, || {
+                            deposit(&env, depositor.clone(), y)
+                        });
+                        prop_assert_eq!(result, Err(ShieldError::InsufficientBalance));
+                        let account = env.as_contract(&contract_id, || {
+                            read_account(&env, &depositor).unwrap()
+                        });
+                        prop_assert_eq!(account.balance, x);
+                    }
+                }
+            }
+
+            /// `withdraw(amount)` immediately after `deposit(amount)` leaves
+            /// the balance at exactly zero for any positive amount.
+            #[test]
+            fn withdraw_after_deposit_returns_to_zero(amount in 1i128..MAX_POSITIVE) {
+                let (env, contract_id) = setup();
+                let owner = Address::generate(&env);
+
+                env.as_contract(&contract_id, || {
+                    deposit(&env, owner.clone(), amount).unwrap();
+                });
+                let after = env.as_contract(&contract_id, || {
+                    withdraw(&env, owner.clone(), amount).unwrap()
+                });
+                prop_assert_eq!(after.balance, 0);
+            }
+
+            /// `withdraw(amount)` with `amount > balance` always returns
+            /// `InsufficientBalance` and never mutates the stored balance.
+            #[test]
+            fn withdraw_overdraw_is_rejected(balance in 1i128..(i128::MAX / 2), excess in 1i128..(i128::MAX / 2)) {
+                let (env, contract_id) = setup();
+                let owner = Address::generate(&env);
+
+                env.as_contract(&contract_id, || {
+                    deposit(&env, owner.clone(), balance).unwrap();
+                });
+
+                let attempted = balance + excess;
+                let result = env.as_contract(&contract_id, || {
+                    withdraw(&env, owner.clone(), attempted)
+                });
+                prop_assert_eq!(result, Err(ShieldError::InsufficientBalance));
+
+                let account = env.as_contract(&contract_id, || {
+                    read_account(&env, &owner).unwrap()
+                });
+                prop_assert_eq!(account.balance, balance);
+            }
+
+            /// Non-positive deposit/withdraw amounts are always rejected and
+            /// never change stored balances.
+            #[test]
+            fn non_positive_amounts_are_rejected(amount in -MAX_POSITIVE..0i128) {
+                let (env, contract_id) = setup();
+                let owner = Address::generate(&env);
+
+                prop_assert_eq!(
+                    env.as_contract(&contract_id, || deposit(&env, owner.clone(), amount)),
+                    Err(ShieldError::InsufficientBalance)
+                );
+                prop_assert_eq!(
+                    env.as_contract(&contract_id, || withdraw(&env, owner.clone(), amount)),
+                    Err(ShieldError::InsufficientBalance)
+                );
+                prop_assert!(env
+                    .as_contract(&contract_id, || read_account(&env, &owner))
+                    .is_none());
+            }
+        }
+    }
 }
