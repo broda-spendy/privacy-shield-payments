@@ -64,6 +64,7 @@ privacy-shield-payments/
 │       │   └── test.rs          # unit tests
 │       └── README.md
 ├── docs/
+│   ├── adr/                     # architecture decision records (see adr/README.md)
 │   ├── interface.md             # public contract interface reference
 │   └── threat-model.md          # privacy/security assumptions, Phase 1 caveats
 └── Cargo.toml                   # workspace root
@@ -168,3 +169,10 @@ Phase 2 closes this gap with real commitments and range proofs.
   — see the PRD risk table.
 - Disclosure key derivation scheme (Phase 3) — likely a deterministic
   sub-key derived from the sender's transfer-specific ephemeral key, TBD.
+
+## 7. Architecture Decision Records
+
+Major technical decisions are recorded in `docs/adr/`. Start at
+[`docs/adr/README.md`](docs/adr/README.md) for the process, template, and
+index. Current records: SDK choice (`001`), Phase 1 mock proofs (`002`),
+and the no-admin-key stance (`003`).
