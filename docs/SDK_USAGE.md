@@ -1,0 +1,183 @@
+# SDK Usage Guide
+
+This guide shows how to interact with the Privacy-Shield Payments contract
+from a TypeScript/JavaScript project using the
+[`@stellar/stellar-sdk`](https://www.npmjs.com/package/@stellar/stellar-sdk)
+Sorosoban bindings and the
+[`soroban-client`](https://www.npmjs.com/package/soroban-client) contract
+ABI.
+
+> **Phase 1 caveat:** this contract is a scaffold. `confidential_transfer`
+> accepts a `MockProof` (amount in cleartext, no real ZK verification) and
+> `balance` returns the real balance in cleartext. See
+> `docs/threat-model.md` before relying on any privacy guarantees. Do not
+> deploy beyond Stellar testnet.
+
+## 1. Import the contract ABI / types
+
+Generate the TypeScript types from the contract's Wasm or its
+`ShieldContract` SDK:
+
+```bash
+npm install @stellar/stellar-sdk stellar-sdk
+soroban contract read --wasm target/wasm32-unknown-unknown/release/shield_contract.wasm > shield.json
+soroban contract generate --wasm target/wasm32-unknown-unknown/release/shield_contract.wasm --output ./contracts
+```
+
+Then import the generated bindings:
+
+```typescript
+import {
+  Contract as ShieldContract,
+  Networks,
+} from "./contracts/contracts"; // generated
+import {
+  Address,
+  SorobanRpc,
+  TransactionBuilder,
+  BASE_FEE,
+  scValToNative,
+} from "@stellar/stellar-sdk";
+
+// Testnet RPC. Swap for your own endpoint or a local container.
+const rpc = new SorobanRpc.Server("https://soroban-testnet.stellar.org");
+const contractId = "CCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // replace with deployed ID
+const shield = new ShieldContract(contractId);
+```
+
+Contract state types (from `contracts/shield/src/types.rs`) map to these
+SDK types:
+
+| Rust type | soroban-client representation |
+|-----------|-------------------------------|
+| `Address` | `Address` |
+| `i128`    | `i128` (scVal `i128`) |
+| `ShieldedAccount` | generated `ShieldedAccount` struct |
+| `ProofKind` | generated `ProofKind` enum |
+| `MockProof { amount: i128, nonce: BytesN<32> }` | generated `MockProof` |
+| `BytesN<32>` | `xdr.ScValBytes` / `Buffer(32)` |
+
+## 2. Deposit example
+
+```typescript
+import { Keypair, xdr, scValToNative } from "@stellar/stellar-sdk";
+
+const depositor = Keypair.fromSecret("S..."); // funded testnet keypair
+
+const i128 = xdr.ScVal.scvI128(
+  new xdr.Int128Parts({ lo: xdr.Uint64.fromString("1000"), hi: xdr.Int64.fromString("0") })
+);
+
+const tx = new TransactionBuilder(new Address(depositor.publicKey()), {
+  networkPassphrase: Networks.TESTNET,
+  fee: BASE_FEE,
+})
+  .addOperation(
+    shield.deposit({
+      depositor: new Address(depositor.publicKey()),
+      amount: i128,
+    })
+  )
+  .setTimeout(30)
+  .build();
+
+tx.sign(depositor);
+const res = await rpc.sendTransaction(tx);
+// poll for completion, then parse the result:
+const parsed = scValToNative(res.getResultValue());
+console.log(parsed); // { owner: "G...", balance: 1000n }
+```
+
+## 3. Confidential transfer example (including proof construction)
+
+In Phase 1 the "proof" is a `MockProof` — a nonce plus the cleartext
+amount. Constructing the proof and invoking the transfer:
+
+```typescript
+import { Address, Keypair, xdr } from "@stellar/stellar-sdk";
+
+const alice = Keypair.fromSecret("S..."); // must be authorized and funded
+const bob = Keypair.fromSecret("S...");
+const amount = 250n;
+
+// Encode an i128 amount the way the contract decodes it.
+const i128 = xdr.ScVal.scvI128(
+  new xdr.Int128Parts({ lo: xdr.Uint64.fromString("250"), hi: xdr.Int64.fromString("0") })
+);
+
+// Phase 1 mock proof: amount in cleartext + a nonce.
+// ProofKind::Mock is a union; canonical XDR is [symbol, payload].
+const proof = xdr.ScVal.scvVec([
+  xdr.ScVal.scvSymbol("Mock"),
+  xdr.ScVal.scvVec([i128, xdr.ScVal.scvBytes(Buffer.alloc(32, 9))]),
+]);
+
+const tx = new TransactionBuilder(new Address(alice.publicKey()), {
+  networkPassphrase: Networks.TESTNET,
+  fee: BASE_FEE,
+})
+  .addOperation(
+    shield.confidential_transfer({
+      from: new Address(alice.publicKey()),
+      to: new Address(bob.publicKey()),
+      proof,
+    })
+  )
+  .setTimeout(30)
+  .build();
+
+tx.sign(alice);
+await rpc.sendTransaction(tx);
+```
+
+> **Note:** when Phase 2 lands, `proof` will be a real range proof produced
+> by the ZK library; only the construction of the proof object changes — the
+> `confidential_transfer` call shape stays the same.
+
+## 4. Balance query example
+
+```typescript
+const keypair = Keypair.fromSecret("S...");
+const result = await rpc.call(shield.address, shield.balance(new Address(keypair.publicKey())).toXdr());
+const balance = scValToNative(result);
+console.log(balance === null ? "no account yet" : balance.balance);
+```
+
+## 5. Disclosure key generation example
+
+Phase 3 will let a transfer party share a `DisclosureKey` so an auditor can
+verify a specific transfer without seeing any other transaction. The
+contract endpoint is not implemented yet (`NotImplemented` error), but the
+client-side shape is:
+
+```typescript
+import { randomBytes, createHash } from "crypto";
+
+// transfer_id is the tx hash; viewing_key is derived out-of-band
+// (see docs/DISCLOSURE_KEY_DESIGN.md in Phase 3).
+const transferId = randomBytes(32);
+const viewingKey = createHash("sha256").update(transferId).digest();
+
+// Phase 1: this call always fails with NotImplemented.
+const disclosureKey = { transfer_id: transferId, viewing_key: viewingKey };
+```
+
+## Running the examples
+
+The scripts in `examples/` connect to Stellar testnet. To run them:
+
+```bash
+cd examples
+npm install
+export STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
+export CONTRACT_ID="C..."        # your deployed contract id
+export DEPOSITOR_SECRET="S..."   # funded testnet keypair
+export RECIPIENT_SECRET="S..."   # funded testnet keypair
+npm run deposit
+npm run transfer
+npm run balance
+```
+
+The examples require a deployed instance of the contract (`initialize`
+called with a Stellar Asset Contract address). See `PRD.md` Phase 5 for the
+testnet deployment runbook.
