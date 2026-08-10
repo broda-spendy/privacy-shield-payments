@@ -58,12 +58,19 @@ fn confidential_transfer(
     from: Address,
     to: Address,
     proof: ProofKind,
-) -> Result<(), ShieldError>
+) -> Result<BytesN<32>, ShieldError>
 ```
 
 Transfers a confidential amount from `from` to `to`, authorized by `proof`.
 Requires `from`'s authorization. Emits a `transfer` event containing only
-`from` and `to` — never the amount.
+`from`, `to`, and the returned opaque `transfer_id` — never the amount.
+
+The `transfer_id` is `SHA-256(xdr(from) || xdr(to) || nonce || amount)`: a
+deterministic, binding commitment over the parties, proof nonce, and amount.
+A party to the transfer can later use it to register a disclosure key (see
+`record_disclosure_request`). It is *binding*, not *hiding* — see
+`docs/threat-model.md` for the Phase 1/2 caveat that the amount still travels
+in cleartext inside the mock proof.
 
 **Phase 1:** `proof` must be `ProofKind::Mock(MockProof { amount, nonce })`.
 See `docs/threat-model.md` for why this provides no real privacy yet.
@@ -77,24 +84,34 @@ See `docs/threat-model.md` for why this provides no real privacy yet.
 fn record_disclosure_request(env: Env, caller: Address, key: DisclosureKey) -> Result<(), ShieldError>
 ```
 
-**Phase 1: not implemented.** Always returns `Err(ShieldError::NotImplemented)`.
-Will let a transfer party register a disclosure key for later third-party
-verification (Phase 3).
+Registers a disclosure for the transfer identified by `key.transfer_id` so
+`key.viewing_key` can later be shared out-of-band (auditor, regulator,
+counterparty) for verification. Requires `caller` to be **a party to the
+transfer** (`record.from` or `record.to`).
+
+Only `SHA-256(viewing_key)` is stored, never the key itself. Re-recording for
+the same transfer rotates the key: the previous viewing key stops working.
+
+**Errors:** `TransferNotFound`, `Unauthorized`.
 
 ## `verify_disclosure`
 
 ```rust
-fn verify_disclosure(env: Env, key: DisclosureKey) -> Result<(), ShieldError>
+fn verify_disclosure(env: Env, key: DisclosureKey) -> Result<DisclosureRecord, ShieldError>
 ```
 
-**Phase 1: not implemented.** Always returns `Err(ShieldError::NotImplemented)`.
-Will let a holder of a valid `DisclosureKey` verify a transfer's real amount
-and parties (Phase 3).
+Verifies a disclosure. If a disclosure was recorded for `key.transfer_id` and
+`key.viewing_key` matches, returns the `DisclosureRecord` — the transfer's
+real amount and parties. The key is bound to the `transfer_id`, so the holder
+sees **only** that transfer and cannot read any other transfer in the pool.
+
+**Errors:** `DisclosureNotFound`, `InvalidDisclosureKey`.
 
 ## Types
 
 See `contracts/shield/src/types.rs` for `ShieldedAccount`, `ProofKind`,
-`MockProof`, `DisclosureKey`, and `DataKey`.
+`MockProof`, `DisclosureKey`, `DisclosureRecord`, `TransferRecord`, and
+`DataKey`.
 
 ## Errors
 

@@ -25,8 +25,12 @@ pub enum DataKey {
     /// The address of the underlying Stellar Asset Contract this pool
     /// shields deposits/withdrawals for.
     AssetContract,
-    /// Disclosure record, keyed by an opaque transfer id (Phase 3, unused
-    /// in Phase 1 beyond the type definition).
+    /// Transfer record, keyed by the SHA-256 `transfer_id` committed in the
+    /// transfer event (Phase 3). Written by `confidential_transfer` so a
+    /// party to a transfer can later register a disclosure for it.
+    Transfer(BytesN<32>),
+    /// Disclosure record, keyed by the transfer's `transfer_id` (Phase 3).
+    /// Written by `record_disclosure_request`, read by `verify_disclosure`.
     Disclosure(BytesN<32>),
 }
 
@@ -68,12 +72,46 @@ impl MockProof {
     }
 }
 
-/// Placeholder type for Phase 3 selective disclosure. Unused logic in
-/// Phase 1; the shape is defined now so `docs/interface.md` can document
-/// the eventual full public interface.
+/// A disclosure key: the identifier of a specific transfer plus the viewing
+/// key a party shares out-of-band. Used by `record_disclosure_request` and
+/// `verify_disclosure` (Phase 3).
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DisclosureKey {
     pub transfer_id: BytesN<32>,
     pub viewing_key: BytesN<32>,
+}
+
+/// A record of a confidential transfer, stored under
+/// `DataKey::Transfer(transfer_id)` (Phase 3).
+///
+/// The record exists so a party to a transfer can later register a
+/// disclosure for it. It is **not** emitted in the transfer event — only the
+/// `transfer_id` is — so the amount and counterparty stay out of public
+/// event streams unless a disclosure is explicitly created.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TransferRecord {
+    pub transfer_id: BytesN<32>,
+    pub from: Address,
+    pub to: Address,
+    pub amount: i128,
+}
+
+/// A disclosure record, stored under `DataKey::Disclosure(transfer_id)`
+/// (Phase 3).
+///
+/// Only the SHA-256 hash of the viewing key is stored (never the key
+/// itself), and only the amount and parties are revealed to a holder of the
+/// correct key. See `docs/threat-model.md` for the Phase 3 caveat: the
+/// binding is a hash commitment, not a hiding commitment — it binds the
+/// record to a key but does not hide the amount from brute force on its own.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct DisclosureRecord {
+    pub transfer_id: BytesN<32>,
+    pub from: Address,
+    pub to: Address,
+    pub amount: i128,
+    pub viewing_key_hash: BytesN<32>,
 }

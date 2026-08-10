@@ -92,6 +92,13 @@ transaction-specific viewing key and share it out-of-band. Add a
 verification utility (CLI or library) an auditor can run against that key
 plus the public transaction record to recover and verify amount/parties.
 
+**Status (2026-08-09):** the contract-side mechanism is implemented —
+`confidential_transfer` commits a deterministic `transfer_id`,
+`record_disclosure_request` registers a key (party-gated, hash-only storage),
+and `verify_disclosure` recovers amount/parties for a key holder. See
+`docs/adr/004-disclosure-key-design.md` and `examples/disclosure.ts`. The
+standalone auditor CLI (`tools/disclosure-cli/`, issue #20) remains.
+
 ### Phase 4 — Wallet / Web UI
 Minimal React + Stellar wallet (Freighter) frontend: connect wallet, deposit
 to shield pool, send confidential payment, view confidential balance,

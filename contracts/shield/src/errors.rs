@@ -14,15 +14,18 @@ pub enum ShieldError {
     InvalidProof = 2,
     /// No shielded account exists for the given address.
     AccountNotFound = 3,
-    /// This functionality is defined in the public interface but not yet
-    /// implemented — used by Phase 3 disclosure stubs in Phase 1.
-    NotImplemented = 4,
     /// The caller is not authorized to perform this action.
     Unauthorized = 5,
     /// The contract has already been initialized.
     AlreadyInitialized = 6,
     /// The contract has not been initialized yet.
     NotInitialized = 7,
+    /// No transfer record exists for the given `transfer_id`.
+    TransferNotFound = 8,
+    /// No disclosure record exists for the given `transfer_id`.
+    DisclosureNotFound = 9,
+    /// The disclosure key's viewing key does not match the recorded one.
+    InvalidDisclosureKey = 10,
 }
 
 impl core::fmt::Display for ShieldError {
