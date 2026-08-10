@@ -1,0 +1,164 @@
+/* ============================================================
+   Footer.module.css — Issue #99
+   Responsive footer with brand links, network health indicator,
+   documentation shortcuts, and copyright.
+   ============================================================ */
+
+.footer {
+  width: 100%;
+  background-color: var(--color-bg-surface);
+  border-top: 1px solid var(--color-border-subtle);
+  padding-block: var(--space-12) var(--space-8);
+  margin-top: auto;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+.brandCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 32ch;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  font-size: var(--text-lg);
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.logoMark {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-primary),
+    var(--color-brand-secondary)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.brandDesc {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.networkHealth {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  width: fit-content;
+}
+
+.healthDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
+}
+
+.linkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.groupTitle {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.linkList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.linkList a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.linkList a:hover {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.phaseBadge {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  border: 1px solid var(--color-info);
+}
+
+/* ── Mobile layout ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .topGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .brandCol {
+    max-width: 100%;
+  }
+
+  .bottomRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

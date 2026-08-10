@@ -1,0 +1,77 @@
+/* ============================================================
+   NetworkStatusBanner.module.css — Issue #74
+   Responsive status banner for offline state & network warnings.
+   ============================================================ */
+
+.banner {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+  border-bottom: 1px solid transparent;
+  z-index: 90;
+}
+
+/* ── Variants ─────────────────────────────────────────────── */
+.offline {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+  border-color: var(--color-info);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dismissBtn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: var(--text-base);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  opacity: 0.8;
+  transition: opacity var(--transition-fast);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dismissBtn:hover {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .banner {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+  }
+}

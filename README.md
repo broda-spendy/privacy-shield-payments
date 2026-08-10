@@ -84,9 +84,17 @@ Phase 6 operations docs:
 
 - [`docs/deployment/MONITORING.md`](docs/deployment/MONITORING.md) — indexer
   health & alert thresholds, with [`scripts/monitor.sh`](scripts/monitor.sh)
+- [`docs/deployment/MAINNET_RUNBOOK.md`](docs/deployment/MAINNET_RUNBOOK.md) —
+  pre-deployment checklist, deployment procedure, rollback limits, and incident response
 
 ## ⚠️ Privacy disclaimer (Phase 1)
 
 This phase ships **zero real privacy guarantees**. Proof verification is
 mocked (`proof.rs`, functions prefixed `unsafe_for_production_*`). Do not
 use this for any non-development purpose. See `docs/threat-model.md`.
+
+## Security & operations
+
+- `docs/threat-model.md` — privacy posture and Phase 1 caveats
+- `docs/security/ATTACK_SURFACE.md` — enumerated attack surfaces, mitigations, and audit focus
+- `docs/adr/003-no-admin-key.md` — the no-admin/no-pause design decision
