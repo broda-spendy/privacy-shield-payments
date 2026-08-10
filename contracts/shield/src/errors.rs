@@ -36,10 +36,16 @@ impl core::fmt::Display for ShieldError {
             }
             ShieldError::InvalidProof => "proof failed verification",
             ShieldError::AccountNotFound => "no shielded account exists for the given address",
-            ShieldError::NotImplemented => "functionality is not implemented yet",
             ShieldError::Unauthorized => "caller is not authorized to perform this action",
             ShieldError::AlreadyInitialized => "contract has already been initialized",
             ShieldError::NotInitialized => "contract has not been initialized yet",
+            ShieldError::TransferNotFound => "no transfer record exists for the given transfer_id",
+            ShieldError::DisclosureNotFound => {
+                "no disclosure record exists for the given transfer_id"
+            }
+            ShieldError::InvalidDisclosureKey => {
+                "the viewing key does not match the recorded disclosure key"
+            }
         };
         f.write_str(msg)
     }
@@ -76,14 +82,6 @@ mod tests {
     }
 
     #[test]
-    fn display_not_implemented() {
-        assert_eq!(
-            ShieldError::NotImplemented.to_string(),
-            "functionality is not implemented yet"
-        );
-    }
-
-    #[test]
     fn display_unauthorized() {
         assert_eq!(
             ShieldError::Unauthorized.to_string(),
@@ -108,15 +106,41 @@ mod tests {
     }
 
     #[test]
+    fn display_transfer_not_found() {
+        assert_eq!(
+            ShieldError::TransferNotFound.to_string(),
+            "no transfer record exists for the given transfer_id"
+        );
+    }
+
+    #[test]
+    fn display_disclosure_not_found() {
+        assert_eq!(
+            ShieldError::DisclosureNotFound.to_string(),
+            "no disclosure record exists for the given transfer_id"
+        );
+    }
+
+    #[test]
+    fn display_invalid_disclosure_key() {
+        assert_eq!(
+            ShieldError::InvalidDisclosureKey.to_string(),
+            "the viewing key does not match the recorded disclosure key"
+        );
+    }
+
+    #[test]
     fn display_matches_every_variant() {
         let variants = [
             ShieldError::InsufficientBalance,
             ShieldError::InvalidProof,
             ShieldError::AccountNotFound,
-            ShieldError::NotImplemented,
             ShieldError::Unauthorized,
             ShieldError::AlreadyInitialized,
             ShieldError::NotInitialized,
+            ShieldError::TransferNotFound,
+            ShieldError::DisclosureNotFound,
+            ShieldError::InvalidDisclosureKey,
         ];
         for variant in variants {
             let rendered = variant.to_string();
