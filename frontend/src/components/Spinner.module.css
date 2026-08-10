@@ -1,0 +1,52 @@
+/* ============================================================
+   Spinner.module.css
+   Accessible, smooth animated spinner ring with CSS variables.
+   ============================================================ */
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  vertical-align: middle;
+}
+
+.spinner {
+  display: inline-block;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border-subtle);
+  border-top-color: var(--color-brand-primary);
+  border-right-color: var(--color-brand-secondary);
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Sizes ────────────────────────────────────────────────── */
+.sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 2px;
+}
+
+.md {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 2.5px;
+}
+
+.lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-width: 3px;
+}
+
+/* Optional label text */
+.label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
