@@ -43,3 +43,10 @@ What trade-offs result? What becomes easier and what becomes harder?
 | [001](001-use-soroban-sdk.md) | Use the Soroban SDK over raw host functions | Accepted |
 | [002](002-phase-1-mock-proofs.md) | Mock ZK proofs in Phase 1 | Accepted |
 | [003](003-no-admin-key.md) | No admin/pause mechanism | Accepted |
+| [004](004-disclosure-key-design.md) | transfer_id and viewing-key design for selective disclosure | Accepted |
+
+## Design documents
+
+- [Disclosure key derivation scheme](../DISCLOSURE_KEY_DESIGN.md) — Phase 3
+  design doc for deriving and sharing per-transfer viewing keys (extends
+  ADR-004).
