@@ -89,3 +89,9 @@ monitoring — see [`docs/deployment/MAINNET_RUNBOOK.md`](docs/deployment/MAINNE
 This phase ships **zero real privacy guarantees**. Proof verification is
 mocked (`proof.rs`, functions prefixed `unsafe_for_production_*`). Do not
 use this for any non-development purpose. See `docs/threat-model.md`.
+
+## Security & operations
+
+- `docs/threat-model.md` — privacy posture and Phase 1 caveats
+- `docs/security/ATTACK_SURFACE.md` — enumerated attack surfaces, mitigations, and audit focus
+- `docs/adr/003-no-admin-key.md` — the no-admin/no-pause design decision
