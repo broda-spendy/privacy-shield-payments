@@ -80,6 +80,10 @@ Phases 2–6 (real ZK proofs, selective disclosure implementation, wallet UI,
 testnet hardening, mainnet readiness) are tracked as GitHub issues in this
 repo. See `PRD.md` §6 for the full phase descriptions.
 
+For the mainnet readiness process — pre-deployment checklist, deployment
+procedure, rollback (immutable-contract) limits, incident response, and
+monitoring — see [`docs/deployment/MAINNET_RUNBOOK.md`](docs/deployment/MAINNET_RUNBOOK.md).
+
 ## ⚠️ Privacy disclaimer (Phase 1)
 
 This phase ships **zero real privacy guarantees**. Proof verification is
