@@ -80,6 +80,11 @@ Phases 2–6 (real ZK proofs, selective disclosure implementation, wallet UI,
 testnet hardening, mainnet readiness) are tracked as GitHub issues in this
 repo. See `PRD.md` §6 for the full phase descriptions.
 
+Phase 6 operations docs:
+
+- [`docs/deployment/MONITORING.md`](docs/deployment/MONITORING.md) — indexer
+  health & alert thresholds, with [`scripts/monitor.sh`](scripts/monitor.sh)
+
 ## ⚠️ Privacy disclaimer (Phase 1)
 
 This phase ships **zero real privacy guarantees**. Proof verification is
