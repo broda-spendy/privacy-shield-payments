@@ -2,13 +2,23 @@
  * App.tsx — root application component.
  *
  * Demonstrates:
+ *  - NetworkStatusBanner (issue #74)
  *  - Header & CopyButton (issues #49 & #51)
  *  - Spinner component (issue #47)
  *  - Responsive DepositForm & TransferForm (issues #56, #23, #24)
+ *  - Footer component (issue #99)
  */
 
 import { useState } from 'react'
-import { Header, CopyButton, Spinner, DepositForm, TransferForm } from './components'
+import {
+  Header,
+  CopyButton,
+  Spinner,
+  DepositForm,
+  TransferForm,
+  NetworkStatusBanner,
+  Footer,
+} from './components'
 import { useTheme } from './hooks/useTheme'
 import styles from './App.module.css'
 
@@ -26,14 +36,12 @@ export default function App() {
   }
 
   const handleDeposit = async (amount: number) => {
-    // Simulate network latency for ZK proof / contract execution
     await new Promise((resolve) => setTimeout(resolve, 1500))
     setBalance((prev) => prev + amount)
     setLastTxMessage(`Successfully shielded ${amount} XLM into pool!`)
   }
 
   const handleTransfer = async (recipient: string, amount: number) => {
-    // Simulate network latency for ZK proof / contract execution
     await new Promise((resolve) => setTimeout(resolve, 2000))
     setBalance((prev) => prev - amount)
     setLastTxMessage(`Confidential transfer of ${amount} XLM sent to ${recipient.slice(0, 8)}...!`)
@@ -41,6 +49,10 @@ export default function App() {
 
   return (
     <>
+      {/* Issue #74 — NetworkStatusBanner */}
+      <NetworkStatusBanner network="testnet" />
+
+      {/* Issue #49 — Header */}
       <Header
         walletAddress={walletAddress}
         network="testnet"
@@ -159,6 +171,9 @@ export default function App() {
           </div>
         </section>
       </main>
+
+      {/* Issue #99 — Footer */}
+      <Footer network="testnet" />
     </>
   )
 }
