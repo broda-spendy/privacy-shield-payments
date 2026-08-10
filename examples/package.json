@@ -6,7 +6,8 @@
   "scripts": {
     "deposit": "tsx deposit.ts",
     "transfer": "tsx transfer.ts",
-    "balance": "tsx balance.ts"
+    "balance": "tsx balance.ts",
+    "disclosure": "tsx disclosure.ts"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^12.0.0"

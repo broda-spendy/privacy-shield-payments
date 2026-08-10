@@ -23,8 +23,8 @@ npm install
 | `STELLAR_RPC_URL` | all | Testnet RPC endpoint (e.g. `https://soroban-testnet.stellar.org`) |
 | `CONTRACT_ID` | all | Deployed contract id (C-prefixed address) |
 | `ACCOUNT_SECRET` | deposit, balance | Signing secret key (S-prefixed) |
-| `SENDER_SECRET` | transfer | Sender secret key |
-| `RECIPIENT_SECRET` | transfer | Recipient secret key |
+| `SENDER_SECRET` | transfer, disclosure | Sender secret key |
+| `RECIPIENT_SECRET` | transfer, disclosure | Recipient secret key |
 
 ## Run
 
@@ -35,9 +35,10 @@ export ACCOUNT_SECRET="S..."
 export SENDER_SECRET="S..."
 export RECIPIENT_SECRET="S..."
 
-npm run deposit    # shield 1000 units
-npm run transfer   # confidential transfer of 250 units
-npm run balance    # query shielded balance
+npm run deposit      # shield 1000 units
+npm run transfer     # confidential transfer of 250 units
+npm run balance      # query shielded balance
+npm run disclosure   # Phase 3: record + verify a disclosure key for a transfer
 ```
 
 ## Notes
