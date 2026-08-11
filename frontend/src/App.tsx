@@ -1,12 +1,5 @@
 /**
  * App.tsx — root application component.
- *
- * Demonstrates:
- *  - NetworkStatusBanner (issue #74)
- *  - Header & CopyButton (issues #49 & #51)
- *  - Spinner component (issue #47)
- *  - Responsive DepositForm & TransferForm (issues #56, #23, #24)
- *  - Footer component (issue #99)
  */
 
 import { useState } from 'react'
@@ -18,11 +11,14 @@ import {
   TransferForm,
   NetworkStatusBanner,
   Footer,
+  Badge,
+  Tooltip,
+  BalanceVisibilityToggle,
+  ContractBadge,
 } from './components'
 import { useTheme } from './hooks/useTheme'
 import styles from './App.module.css'
 
-// Demo wallet address (Stellar testnet)
 const DEMO_ADDRESS = 'GAHJJJKMOKYE4RVPZEWZTKH5FVI4PA3VL7GK2LFNUBSGBRZFGQ7TS5K'
 
 export default function App() {
@@ -49,10 +45,8 @@ export default function App() {
 
   return (
     <>
-      {/* Issue #74 — NetworkStatusBanner */}
       <NetworkStatusBanner network="testnet" />
 
-      {/* Issue #49 — Header */}
       <Header
         walletAddress={walletAddress}
         network="testnet"
@@ -69,19 +63,13 @@ export default function App() {
             Confidential peer-to-peer stablecoin transfers on Stellar / Soroban
             with ZK-style privacy and selective disclosure.
           </p>
-          {!walletAddress && (
-            <button
-              id="hero-connect-btn"
-              type="button"
-              className={styles.heroCta}
-              onClick={handleConnect}
-            >
-              Connect Freighter Wallet →
-            </button>
-          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <ContractBadge network="testnet" />
+            <BalanceVisibilityToggle amount={balance} symbol="XLM" />
+          </div>
         </section>
 
-        {/* Transaction Feedback banner if active */}
         {lastTxMessage && (
           <div style={{
             backgroundColor: 'var(--color-success-bg)',
@@ -105,7 +93,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Issue #56 — Responsive Forms grid */}
         <section className={styles.demoSection}>
           <h2 className={styles.sectionTitle}>Shield Operations</h2>
           <div style={{
@@ -126,68 +113,58 @@ export default function App() {
           </div>
         </section>
 
-        {/* Issue #47 & #51 — Component Demo Section */}
         <section className={styles.demoSection}>
-          <h2 className={styles.sectionTitle}>Component Library Demos</h2>
+          <h2 className={styles.sectionTitle}>UI Primitive Demos (#67, #80, #81)</h2>
 
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: 'var(--space-6)',
           }}>
-            {/* CopyButton card */}
+            {/* Badges & Tooltips */}
             <div className={styles.card}>
-              <h3 className={styles.cardTitle}>CopyButton Component (#51)</h3>
+              <h3 className={styles.cardTitle}>Badge &amp; Tooltip Components (#67)</h3>
               <p className={styles.cardDesc}>
-                Inline copy button with tooltip feedback and fallback support.
+                Status badges and popover tooltips for UI indicators.
               </p>
-              <div className={styles.demoRows}>
-                <DemoRow label="Wallet address" value={DEMO_ADDRESS} mono />
-                <DemoRow label="Contract ID" value="CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA" mono />
+              <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', alignItems: 'center' }}>
+                <Badge variant="success">Confirmed</Badge>
+                <Badge variant="warning">Pending</Badge>
+                <Badge variant="error">Failed</Badge>
+                <Badge variant="info">Shielded</Badge>
+                <Tooltip content="Hover popup tooltip text">
+                  <Badge variant="neutral">Hover me</Badge>
+                </Tooltip>
               </div>
             </div>
 
-            {/* Spinner card */}
+            {/* Balance Masking */}
             <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Spinner Component (#47)</h3>
+              <h3 className={styles.cardTitle}>Balance Visibility Toggle (#80)</h3>
               <p className={styles.cardDesc}>
-                Accessible loading spinner with size variants (sm, md, lg).
+                Toggle button to hide numeric balances on screen.
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6)', paddingTop: 'var(--space-2)' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
-                  <Spinner size="sm" label="Small" />
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>sm</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
-                  <Spinner size="md" label="Medium" />
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>md</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
-                  <Spinner size="lg" label="Large" />
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>lg</span>
-                </div>
+              <div style={{ fontSize: 'var(--text-lg)', fontWeight: 600 }}>
+                <BalanceVisibilityToggle amount={1250.50} symbol="USDC" />
+              </div>
+            </div>
+
+            {/* Utility Demos */}
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>Utilities (CopyButton &amp; Spinner)</h3>
+              <p className={styles.cardDesc}>
+                Copy-to-clipboard button and async loading spinners.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                <CopyButton value="GAHJJJKM..." label="Copy address" />
+                <Spinner size="sm" label="Syncing..." />
               </div>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Issue #99 — Footer */}
       <Footer network="testnet" />
     </>
-  )
-}
-
-function DemoRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div className={styles.demoRow}>
-      <span className={styles.demoLabel}>{label}</span>
-      <div className={styles.demoValue}>
-        <span className={mono ? 'font-mono' : ''} style={{ wordBreak: 'break-all' }}>
-          {value}
-        </span>
-        <CopyButton value={value} label={`Copy ${label}`} size={15} />
-      </div>
-    </div>
   )
 }
