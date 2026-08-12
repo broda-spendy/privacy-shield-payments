@@ -15,6 +15,9 @@ import {
   Tooltip,
   BalanceVisibilityToggle,
   ContractBadge,
+  Identicon,
+  BalanceGauge,
+  NetworkLatency,
 } from './components'
 import { useTheme } from './hooks/useTheme'
 import styles from './App.module.css'
@@ -65,8 +68,10 @@ export default function App() {
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {walletAddress && <Identicon address={walletAddress} size={36} />}
             <ContractBadge network="testnet" />
             <BalanceVisibilityToggle amount={balance} symbol="XLM" />
+            <NetworkLatency />
           </div>
         </section>
 
@@ -94,7 +99,7 @@ export default function App() {
         )}
 
         <section className={styles.demoSection}>
-          <h2 className={styles.sectionTitle}>Shield Operations</h2>
+          <h2 className={styles.sectionTitle}>Shield Operations &amp; Metrics</h2>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -111,17 +116,20 @@ export default function App() {
               onTransfer={handleTransfer}
             />
           </div>
+
+          <div style={{ marginTop: 'var(--space-6)' }}>
+            <BalanceGauge shieldedAmount={balance} transparentAmount={750} symbol="XLM" />
+          </div>
         </section>
 
         <section className={styles.demoSection}>
-          <h2 className={styles.sectionTitle}>UI Primitive Demos (#67, #80, #81)</h2>
+          <h2 className={styles.sectionTitle}>UI Component Library</h2>
 
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: 'var(--space-6)',
           }}>
-            {/* Badges & Tooltips */}
             <div className={styles.card}>
               <h3 className={styles.cardTitle}>Badge &amp; Tooltip Components (#67)</h3>
               <p className={styles.cardDesc}>
@@ -138,24 +146,13 @@ export default function App() {
               </div>
             </div>
 
-            {/* Balance Masking */}
             <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Balance Visibility Toggle (#80)</h3>
+              <h3 className={styles.cardTitle}>Utilities (Copy, Spinner, Identicon)</h3>
               <p className={styles.cardDesc}>
-                Toggle button to hide numeric balances on screen.
-              </p>
-              <div style={{ fontSize: 'var(--text-lg)', fontWeight: 600 }}>
-                <BalanceVisibilityToggle amount={1250.50} symbol="USDC" />
-              </div>
-            </div>
-
-            {/* Utility Demos */}
-            <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Utilities (CopyButton &amp; Spinner)</h3>
-              <p className={styles.cardDesc}>
-                Copy-to-clipboard button and async loading spinners.
+                Copy button, loading spinner, and deterministic Identicon.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                <Identicon address={DEMO_ADDRESS} size={28} />
                 <CopyButton value="GAHJJJKM..." label="Copy address" />
                 <Spinner size="sm" label="Syncing..." />
               </div>
