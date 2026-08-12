@@ -1,0 +1,15 @@
+/* ============================================================
+   Identicon.module.css — Issue #89
+   ============================================================ */
+
+.identicon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-surface);
+  flex-shrink: 0;
+}
