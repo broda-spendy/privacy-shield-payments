@@ -1,0 +1,124 @@
+/* ============================================================
+   Toast.module.css — Issue #48
+   ============================================================ */
+
+.viewport {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(360px, calc(100vw - var(--space-8)));
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 200ms ease;
+}
+
+.success {
+  border-left-color: var(--color-success);
+}
+
+.error {
+  border-left-color: var(--color-error);
+}
+
+.info {
+  border-left-color: var(--color-info);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: var(--radius-full);
+}
+
+.success .icon {
+  color: var(--color-success);
+  background-color: var(--color-success-bg);
+}
+
+.error .icon {
+  color: var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
+.info .icon {
+  color: var(--color-info);
+  background-color: var(--color-info-bg);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.success .title { color: var(--color-success); }
+.error .title   { color: var(--color-error); }
+.info .title    { color: var(--color-info); }
+
+.message {
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+
+.dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: var(--space-1);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.dismiss:hover {
+  color: var(--color-text-primary);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .viewport {
+    left: var(--space-4);
+    right: var(--space-4);
+    width: auto;
+  }
+}
