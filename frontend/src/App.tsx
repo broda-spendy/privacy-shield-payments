@@ -21,8 +21,11 @@ import {
   SystemAlertBanner,
   PercentageSlider,
   WithdrawConfirmationModal,
+  TransactionList,
+  type Transaction,
 } from './components'
 import { useTheme } from './hooks/useTheme'
+import { useToast } from './hooks/useToast'
 import styles from './App.module.css'
 
 const DEMO_ADDRESS = 'GAHJJJKMOKYE4RVPZEWZTKH5FVI4PA3VL7GK2LFNUBSGBRZFGQ7TS5K'
@@ -34,29 +37,55 @@ const DEMO_ALERT = {
   learnMoreUrl: 'https://status.stellar.org',
 }
 
+const DEMO_TRANSACTIONS: Transaction[] = [
+  {
+    id: 'a1b2c3d4e5f60718293a4b5c6d7e8f901a2b3c4d5e6f708192a3b4c5d6e7f8091',
+    type: 'deposit',
+    amount: 250,
+    timestamp: '2026-08-13T14:32:00Z',
+    status: 'confirmed',
+  },
+  {
+    id: 'b2c3d4e5f60718293a4b5c6d7e8f901a2b3c4d5e6f708192a3b4c5d6e7f8091a2',
+    type: 'transfer',
+    amount: 42.5,
+    timestamp: '2026-08-13T09:15:00Z',
+    status: 'pending',
+  },
+  {
+    id: 'c3d4e5f60718293a4b5c6d7e8f901a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3',
+    type: 'withdraw',
+    amount: 100,
+    timestamp: '2026-08-12T18:04:00Z',
+    status: 'failed',
+  },
+]
+
 export default function App() {
   const { isDark, toggleTheme } = useTheme()
+  const toast = useToast()
   const [walletAddress, setWalletAddress] = useState<string | null>(DEMO_ADDRESS)
   const [balance, setBalance] = useState(250)
-  const [lastTxMessage, setLastTxMessage] = useState<string | null>(null)
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
   const [withdrawLoading, setWithdrawLoading] = useState(false)
   const [withdrawPct, setWithdrawPct] = useState(0)
 
   const handleConnect = () => {
-    setWalletAddress(prev => (prev ? null : DEMO_ADDRESS))
+    const wasConnected = walletAddress !== null
+    setWalletAddress(wasConnected ? null : DEMO_ADDRESS)
+    toast.info(wasConnected ? 'Wallet disconnected.' : 'Wallet connected to Privacy Shield.')
   }
 
   const handleDeposit = async (amount: number) => {
     await new Promise((resolve) => setTimeout(resolve, 1500))
     setBalance((prev) => prev + amount)
-    setLastTxMessage(`Successfully shielded ${amount} XLM into pool!`)
+    toast.success(`Successfully shielded ${amount} XLM into pool!`)
   }
 
   const handleTransfer = async (recipient: string, amount: number) => {
     await new Promise((resolve) => setTimeout(resolve, 2000))
     setBalance((prev) => prev - amount)
-    setLastTxMessage(`Confidential transfer of ${amount} XLM sent to ${recipient.slice(0, 8)}...!`)
+    toast.success(`Confidential transfer of ${amount} XLM sent to ${recipient.slice(0, 8)}...!`)
   }
 
   const handleWithdrawConfirm = async () => {
@@ -64,7 +93,7 @@ export default function App() {
     await new Promise((resolve) => setTimeout(resolve, 2000))
     const withdrawAmount = Math.round((withdrawPct / 100) * balance)
     setBalance((prev) => prev - withdrawAmount)
-    setLastTxMessage(`Successfully withdrew ${withdrawAmount} XLM to your public address!`)
+    toast.success(`Successfully withdrew ${withdrawAmount} XLM to your public address!`)
     setWithdrawLoading(false)
     setWithdrawModalOpen(false)
   }
@@ -101,24 +130,6 @@ export default function App() {
             <NetworkLatency />
           </div>
         </section>
-
-        {lastTxMessage && (
-          <div style={{
-            backgroundColor: 'var(--color-success-bg)',
-            border: '1px solid var(--color-success)',
-            color: 'var(--color-success)',
-            padding: 'var(--space-3) var(--space-4)',
-            borderRadius: 'var(--radius-md)',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 500,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <span>✅ {lastTxMessage}</span>
-            <button onClick={() => setLastTxMessage(null)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer' }}>✕</button>
-          </div>
-        )}
 
         <section className={styles.demoSection}>
           <h2 className={styles.sectionTitle}>Shield Operations</h2>
@@ -160,6 +171,11 @@ export default function App() {
               </button>
             </div>
           </div>
+        </section>
+
+        <section className={styles.demoSection}>
+          <h2 className={styles.sectionTitle}>Transaction History (#52)</h2>
+          <TransactionList transactions={DEMO_TRANSACTIONS} tokenSymbol="XLM" />
         </section>
 
         <section className={styles.demoSection}>
